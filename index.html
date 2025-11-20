@@ -2468,20 +2468,37 @@
                 
                 // Simpan semua data ke "database" (localStorage)
                 try {
-                    const allData = {
-                        // === SEND DATA TO GOOGLE SHEETS === //
-const scriptURL = "https://script.google.com/macros/s/AKfycbx_2DRUcxUNk8m1jTnGl2hQJhjMZbfyoR0GxPOEX6XAZUxbDzTm7uWOrJ1hnswyMm44/exec";
+                    const allData = {// === SEND DATA TO GOOGLE SHEETS === //
+const scriptURL = "YOUR_SCRIPT_URL_HERE";
+
+const demografi = JSON.parse(localStorage.getItem('burncheck_demografi') || '{}');
+const answers = answers;
 
 const payload = {
     TimeStamp: new Date().toISOString(),
-    "Inisial Nama": allData.demografi['nama'] || "",
-    "Usia": allData.demografi['usia'] || "",
-    "Program Studi": allData.demografi['prodi'] || "",
-    "Asal Instansi": allData.demografi['asal-instansi'] || "",
-    "Jenis Kelamin": allData.demografi['jenis-kelamin'] || "",
-    "Semester": allData.demografi['semester'] || "",
-    "IPK (Indeks Prestasi Kumulatif)": allData.demografi['ipk'] || "",
-    "Status Tempat Tinggal": allData.demografi['tempat-tinggal'] || "",
+    "Inisial Nama": demografi['nama'] || "",
+    "Usia": demografi['usia'] || "",
+    "Program Studi": demografi['program-studi'] || "",
+    "Asal Instansi": demografi['asal-instansi'] || "",
+    "Jenis Kelamin": demografi['jenis-kelamin'] || "",
+    "Semester": demografi['semester'] || "",
+    "IPK (Indeks Prestasi Kumulatif)": demografi['ipk'] || "",
+    "Status Tempat Tinggal": demografi['tempat-tinggal'] || "",
+};
+
+// Add q1–q24
+for (let i = 1; i <= 24; i++) {
+    payload[`q${i}`] = answers[`q${i}`] || "";
+}
+
+// Send to Google Sheets
+fetch(scriptURL, {
+    method: "POST",
+    body: JSON.stringify(payload),
+    headers: { "Content-Type": "application/json" }
+})
+.then(() => console.log("Data sent to Sheets"))
+.catch(err => console.error("Error:", err));
 };
 
 // add q1–q24
