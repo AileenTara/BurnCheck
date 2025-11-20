@@ -1613,6 +1613,80 @@
 
     <script>
         // Inisialisasi data dan variabel global
+
+// ===== Google Sheets integration (inserted) =====
+const GOOGLE_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbx_2DRUcxUNk8m1jTnGl2hQJhjMZbfyoR0GxPOEX6XAZUxbDzTm7uWOrJ1hnswyMm44/exec";
+
+async function sendToSheet(payload) {
+    try {
+        const res = await fetch(GOOGLE_SCRIPT_WEBAPP_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error('Network response not ok');
+        return await res.json();
+    } catch (e) {
+        console.error('sendToSheet error:', e);
+        return null;
+    }
+}
+
+async function fetchFromSheet() {
+    try {
+        const res = await fetch(GOOGLE_SCRIPT_WEBAPP_URL + '?action=get');
+        if (!res.ok) throw new Error('Network response not ok');
+        const json = await res.json();
+        return json;
+    } catch (e) {
+        console.warn('fetchFromSheet failed, falling back to localStorage', e);
+        try {
+            return JSON.parse(localStorage.getItem('burncheck_all_responses') || '[]');
+        } catch (_) {
+            return [];
+        }
+    }
+}
+
+// Try to sync local cache with Google Sheets on load (async)
+fetchFromSheet().then(sheet => {
+    if (Array.isArray(sheet) && sheet.length) {
+        try {
+            localStorage.setItem('burncheck_all_responses', JSON.stringify(sheet));
+            // if admin page is active, reload admin data
+            const adminPage = document.getElementById && document.getElementById('admin-dashboard-page');
+            if (adminPage && adminPage.classList.contains('active') && typeof loadAdminData === 'function') {
+                loadAdminData();
+                showDataPreview();
+            }
+        } catch(e){console.error('Error syncing sheet to localStorage', e)}
+    }
+}).catch(()=>{});
+
+// After final submit, also push to Google Sheets (best-effort)
+document.addEventListener('click', function(e) {
+    if (e.target && e.target.id === 'submit-final-button') {
+        // build payload from localStorage / globals
+        const payload = {
+            action: 'append',
+            data: {
+                respondentId: localStorage.getItem('burncheck_respondent_id') || (typeof respondentId !== 'undefined' ? respondentId : ''),
+                demografi: JSON.parse(localStorage.getItem('burncheck_demografi') || '{}'),
+                answers: (typeof answers !== 'undefined') ? answers : JSON.parse(localStorage.getItem('burncheck_answers') || '{}'),
+                completionTime: localStorage.getItem('burncheck_completion_time') || '',
+                submitTime: new Date().toISOString()
+            }
+        };
+        // fire and forget
+        sendToSheet(payload).then(r => {
+            if (r && r.result === 'success') {
+                console.log('Response pushed to Google Sheets');
+            } else {
+                console.log('Google Sheets did not return success (or returned null)');
+            }
+        }).catch(err => console.warn('sendToSheet failed', err));
+    }
+});
         let currentQuestionIndex = 0;
         let answers = {};
         let startTime;
