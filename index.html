@@ -1613,89 +1613,6 @@
 
     <script>
         // Inisialisasi data dan variabel global
-
-// ===== SheetDB integration (FINAL) =====
-
-// your real SheetDB endpoint
-const SHEETDB_URL = "https://sheetdb.io/api/v1/nfhimmgny5k4q";
-
-// ---- Send data to SheetDB ----
-async function sendToSheet(payload) {
-    try {
-        // SheetDB requires { data: {...} }
-        const body = { data: payload.data };
-
-        const res = await fetch(SHEETDB_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body)
-        });
-
-        const json = await res.json();
-        console.log("SheetDB POST response:", json);
-        return json;
-
-    } catch (err) {
-        console.error("sendToSheet error:", err);
-        return null;
-    }
-}
-
-// ---- Fetch all rows for Admin Dashboard ----
-async function fetchFromSheet() {
-    try {
-        const res = await fetch(SHEETDB_URL);
-        const json = await res.json();
-
-        console.log("SheetDB GET response:", json);
-
-        // SheetDB returns rows as an array of objects
-        return json;
-
-    } catch (err) {
-        console.warn("fetchFromSheet failed:", err);
-        return [];
-    }
-}
-
-// ---- Sync responses into local cache on load ----
-fetchFromSheet().then(rows => {
-    if (Array.isArray(rows) && rows.length) {
-        localStorage.setItem("burncheck_all_responses", JSON.stringify(rows));
-
-        const adminPage = document.getElementById("admin-dashboard-page");
-        if (adminPage && adminPage.classList.contains("active")) {
-            if (typeof loadAdminData === "function") loadAdminData();
-            if (typeof showDataPreview === "function") showDataPreview();
-        }
-    }
-});
-
-// ---- Final Submit Button: save to SheetDB ----
-document.addEventListener("click", function(e) {
-    if (e.target && e.target.id === "submit-final-button") {
-
-        const payload = {
-            data: {
-                respondentId: localStorage.getItem("burncheck_respondent_id") || "",
-                demografi: JSON.parse(localStorage.getItem("burncheck_demografi") || "{}"),
-                answers: JSON.parse(localStorage.getItem("burncheck_answers") || "{}"),
-                completionTime: localStorage.getItem("burncheck_completion_time") || "",
-                submitTime: new Date().toISOString()
-            }
-        };
-
-        sendToSheet(payload).then(r => {
-            // SheetDB returns {created: 1} on success
-            if (r && (r.created === 1 || r[0])) {
-                console.log("SheetDB: Response saved!");
-            } else {
-                console.log("SheetDB: Did NOT confirm save.");
-            }
-        });
-    }
-});
-});
         let currentQuestionIndex = 0;
         let answers = {};
         let startTime;
@@ -2590,6 +2507,87 @@ document.addEventListener("click", function(e) {
                 }
             });
         });
+        // ===== SheetDB integration (FINAL) =====
+
+// your real SheetDB endpoint
+const SHEETDB_URL = "https://sheetdb.io/api/v1/nfhimmgny5k4q";
+
+// ---- Send data to SheetDB ----
+async function sendToSheet(payload) {
+    try {
+        // SheetDB requires { data: {...} }
+        const body = { data: payload.data };
+
+        const res = await fetch(SHEETDB_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+        });
+
+        const json = await res.json();
+        console.log("SheetDB POST response:", json);
+        return json;
+
+    } catch (err) {
+        console.error("sendToSheet error:", err);
+        return null;
+    }
+}
+
+// ---- Fetch all rows for Admin Dashboard ----
+async function fetchFromSheet() {
+    try {
+        const res = await fetch(SHEETDB_URL);
+        const json = await res.json();
+
+        console.log("SheetDB GET response:", json);
+
+        // SheetDB returns rows as an array of objects
+        return json;
+
+    } catch (err) {
+        console.warn("fetchFromSheet failed:", err);
+        return [];
+    }
+}
+
+// ---- Sync responses into local cache on load ----
+fetchFromSheet().then(rows => {
+    if (Array.isArray(rows) && rows.length) {
+        localStorage.setItem("burncheck_all_responses", JSON.stringify(rows));
+
+        const adminPage = document.getElementById("admin-dashboard-page");
+        if (adminPage && adminPage.classList.contains("active")) {
+            if (typeof loadAdminData === "function") loadAdminData();
+            if (typeof showDataPreview === "function") showDataPreview();
+        }
+    }
+});
+
+// ---- Final Submit Button: save to SheetDB ----
+document.addEventListener("click", function(e) {
+    if (e.target && e.target.id === "submit-final-button") {
+
+        const payload = {
+            data: {
+                respondentId: localStorage.getItem("burncheck_respondent_id") || "",
+                demografi: JSON.parse(localStorage.getItem("burncheck_demografi") || "{}"),
+                answers: JSON.parse(localStorage.getItem("burncheck_answers") || "{}"),
+                completionTime: localStorage.getItem("burncheck_completion_time") || "",
+                submitTime: new Date().toISOString()
+            }
+        };
+
+        sendToSheet(payload).then(r => {
+            // SheetDB returns {created: 1} on success
+            if (r && (r.created === 1 || r[0])) {
+                console.log("SheetDB: Response saved!");
+            } else {
+                console.log("SheetDB: Did NOT confirm save.");
+            }
+        });
+    }
+});
     </script>
 </body>
 </html>
