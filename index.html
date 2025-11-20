@@ -1614,78 +1614,87 @@
     <script>
         // Inisialisasi data dan variabel global
 
-// ===== Google Sheets integration (inserted) =====
-const GOOGLE_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbx_2DRUcxUNk8m1jTnGl2hQJhjMZbfyoR0GxPOEX6XAZUxbDzTm7uWOrJ1hnswyMm44/exec";
+// ===== SheetDB integration (FINAL) =====
 
+// your real SheetDB endpoint
+const SHEETDB_URL = "https://sheetdb.io/api/v1/nfhimmgny5k4q";
+
+// ---- Send data to SheetDB ----
 async function sendToSheet(payload) {
     try {
-        const res = await fetch(GOOGLE_SCRIPT_WEBAPP_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+        // SheetDB requires { data: {...} }
+        const body = { data: payload.data };
+
+        const res = await fetch(SHEETDB_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
         });
-        if (!res.ok) throw new Error('Network response not ok');
-        return await res.json();
-    } catch (e) {
-        console.error('sendToSheet error:', e);
+
+        const json = await res.json();
+        console.log("SheetDB POST response:", json);
+        return json;
+
+    } catch (err) {
+        console.error("sendToSheet error:", err);
         return null;
     }
 }
 
+// ---- Fetch all rows for Admin Dashboard ----
 async function fetchFromSheet() {
     try {
-        const res = await fetch(GOOGLE_SCRIPT_WEBAPP_URL + '?action=get');
-        if (!res.ok) throw new Error('Network response not ok');
+        const res = await fetch(SHEETDB_URL);
         const json = await res.json();
+
+        console.log("SheetDB GET response:", json);
+
+        // SheetDB returns rows as an array of objects
         return json;
-    } catch (e) {
-        console.warn('fetchFromSheet failed, falling back to localStorage', e);
-        try {
-            return JSON.parse(localStorage.getItem('burncheck_all_responses') || '[]');
-        } catch (_) {
-            return [];
-        }
+
+    } catch (err) {
+        console.warn("fetchFromSheet failed:", err);
+        return [];
     }
 }
 
-// Try to sync local cache with Google Sheets on load (async)
-fetchFromSheet().then(sheet => {
-    if (Array.isArray(sheet) && sheet.length) {
-        try {
-            localStorage.setItem('burncheck_all_responses', JSON.stringify(sheet));
-            // if admin page is active, reload admin data
-            const adminPage = document.getElementById && document.getElementById('admin-dashboard-page');
-            if (adminPage && adminPage.classList.contains('active') && typeof loadAdminData === 'function') {
-                loadAdminData();
-                showDataPreview();
-            }
-        } catch(e){console.error('Error syncing sheet to localStorage', e)}
-    }
-}).catch(()=>{});
+// ---- Sync responses into local cache on load ----
+fetchFromSheet().then(rows => {
+    if (Array.isArray(rows) && rows.length) {
+        localStorage.setItem("burncheck_all_responses", JSON.stringify(rows));
 
-// After final submit, also push to Google Sheets (best-effort)
-document.addEventListener('click', function(e) {
-    if (e.target && e.target.id === 'submit-final-button') {
-        // build payload from localStorage / globals
+        const adminPage = document.getElementById("admin-dashboard-page");
+        if (adminPage && adminPage.classList.contains("active")) {
+            if (typeof loadAdminData === "function") loadAdminData();
+            if (typeof showDataPreview === "function") showDataPreview();
+        }
+    }
+});
+
+// ---- Final Submit Button: save to SheetDB ----
+document.addEventListener("click", function(e) {
+    if (e.target && e.target.id === "submit-final-button") {
+
         const payload = {
-            action: 'append',
             data: {
-                respondentId: localStorage.getItem('burncheck_respondent_id') || (typeof respondentId !== 'undefined' ? respondentId : ''),
-                demografi: JSON.parse(localStorage.getItem('burncheck_demografi') || '{}'),
-                answers: (typeof answers !== 'undefined') ? answers : JSON.parse(localStorage.getItem('burncheck_answers') || '{}'),
-                completionTime: localStorage.getItem('burncheck_completion_time') || '',
+                respondentId: localStorage.getItem("burncheck_respondent_id") || "",
+                demografi: JSON.parse(localStorage.getItem("burncheck_demografi") || "{}"),
+                answers: JSON.parse(localStorage.getItem("burncheck_answers") || "{}"),
+                completionTime: localStorage.getItem("burncheck_completion_time") || "",
                 submitTime: new Date().toISOString()
             }
         };
-        // fire and forget
+
         sendToSheet(payload).then(r => {
-            if (r && r.result === 'success') {
-                console.log('Response pushed to Google Sheets');
+            // SheetDB returns {created: 1} on success
+            if (r && (r.created === 1 || r[0])) {
+                console.log("SheetDB: Response saved!");
             } else {
-                console.log('Google Sheets did not return success (or returned null)');
+                console.log("SheetDB: Did NOT confirm save.");
             }
-        }).catch(err => console.warn('sendToSheet failed', err));
+        });
     }
+});
 });
         let currentQuestionIndex = 0;
         let answers = {};
