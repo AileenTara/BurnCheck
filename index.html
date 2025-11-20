@@ -2568,15 +2568,16 @@ fetchFromSheet().then(rows => {
 document.addEventListener("click", function(e) {
     if (e.target && e.target.id === "submit-final-button") {
 
-        const payload = {
-            data: {
-                respondentId: localStorage.getItem("burncheck_respondent_id") || "",
-                demografi: JSON.parse(localStorage.getItem("burncheck_demografi") || "{}"),
-                answers: JSON.parse(localStorage.getItem("burncheck_answers") || "{}"),
-                completionTime: localStorage.getItem("burncheck_completion_time") || "",
-                submitTime: new Date().toISOString()
-            }
-        };
+       const payload = {
+    data: {
+        respondentId: localStorage.getItem("burncheck_respondent_id") || "",
+        demografi: JSON.stringify(JSON.parse(localStorage.getItem("burncheck_demografi") || "{}")),
+        answers: JSON.stringify(JSON.parse(localStorage.getItem("burncheck_answers") || "{}")),
+        completionTime: localStorage.getItem("burncheck_completion_time") || "",
+        submitTime: new Date().toISOString()
+    }
+};
+
 
         sendToSheet(payload).then(r => {
             // SheetDB returns {created: 1} on success
