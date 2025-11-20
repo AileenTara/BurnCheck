@@ -2469,11 +2469,34 @@
                 // Simpan semua data ke "database" (localStorage)
                 try {
                     const allData = {
-                        respondentId: respondentId,
-                        demografi: JSON.parse(localStorage.getItem('burncheck_demografi') || '{}'),
-                        answers: answers,
-                        completionTime: localStorage.getItem('burncheck_completion_time'),
-                        submitTime: localStorage.getItem('burncheck_submit_time')
+                        // === SEND DATA TO GOOGLE SHEETS === //
+const scriptURL = "https://script.google.com/macros/s/AKfycbx_2DRUcxUNk8m1jTnGl2hQJhjMZbfyoR0GxPOEX6XAZUxbDzTm7uWOrJ1hnswyMm44/exec";
+
+const payload = {
+    TimeStamp: new Date().toISOString(),
+    "Inisial Nama": allData.demografi['nama'] || "",
+    "Usia": allData.demografi['usia'] || "",
+    "Program Studi": allData.demografi['prodi'] || "",
+    "Asal Instansi": allData.demografi['asal-instansi'] || "",
+    "Jenis Kelamin": allData.demografi['jenis-kelamin'] || "",
+    "Semester": allData.demografi['semester'] || "",
+    "IPK (Indeks Prestasi Kumulatif)": allData.demografi['ipk'] || "",
+    "Status Tempat Tinggal": allData.demografi['tempat-tinggal'] || "",
+};
+
+// add q1–q24
+for (let i = 1; i <= 24; i++) {
+    payload[`q${i}`] = allData.answers[`q${i}`] || "";
+}
+
+fetch(scriptURL, {
+    method: "POST",
+    body: JSON.stringify(payload),
+    headers: { "Content-Type": "application/json" },
+})
+.then(res => console.log("Data sent to Google Sheets"))
+.catch(err => console.error("Error sending to Google Sheets:", err));
+
                     };
                     
                     // Simpan ke localStorage sebagai data responden
