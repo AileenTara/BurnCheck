@@ -1754,6 +1754,10 @@
                     
                     // Simpan jawaban
                     answers[index] = parseInt(this.getAttribute('data-value'));
+
+                    // Simpan ke localStorage (penting!)
+                    localStorage.setItem("burncheck_answers", JSON.stringify(answers));
+
                     
                     // Sembunyikan pesan validasi jika ada
                     document.getElementById('validation-message').classList.add('hidden');
