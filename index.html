@@ -1222,7 +1222,7 @@
                         </div>
                         <div class="bg-white p-3 rounded-lg">
                             <div class="text-blue-600 font-medium">Jumlah Pertanyaan</div>
-                            <div class="text-gray-600 mt-1">25 pertanyaan</div>
+                            <div class="text-gray-600 mt-1">24 pertanyaan</div>
                         </div>
                         <div class="bg-white p-3 rounded-lg">
                             <div class="text-blue-600 font-medium">Waktu Pengisian</div>
@@ -1311,7 +1311,7 @@
                             <h4 class="font-medium text-gray-700 mb-2">Skor Diperoleh</h4>
                             <div class="bg-white p-4 rounded-lg">
                                 <div class="text-2xl font-bold text-blue-600" id="obtained-score">0</div>
-                                <div class="text-sm text-gray-600">dari 150 poin maksimal</div>
+                                <div class="text-sm text-gray-600">dari 144 poin maksimal</div>
                             </div>
                         </div>
                         <div>
@@ -1754,10 +1754,6 @@
                     
                     // Simpan jawaban
                     answers[index] = parseInt(this.getAttribute('data-value'));
-
-                    // Simpan ke localStorage (penting!)
-                    localStorage.setItem("burncheck_answers", JSON.stringify(answers));
-
                     
                     // Sembunyikan pesan validasi jika ada
                     document.getElementById('validation-message').classList.add('hidden');
@@ -1834,197 +1830,117 @@
                 totalScore += score;
             });
             
-            // Hitung skor akhir (0-100)
-            const maxScore = questions.length * 6;
-            const finalScore = (totalScore / maxScore) * 100;
-            
-            // Tentukan kategori
-            let category, categoryName, categoryDescription, interpretation, recommendations;
-            
-            if (finalScore >= 0 && finalScore <= 20) {
-                category = 1;
-                categoryName = "Sangat Rendah";
-                categoryDescription = "Tingkat burnout Anda sangat rendah";
-                interpretation = "Anda menunjukkan ketahanan yang baik terhadap stres akademik dan tampaknya memiliki strategi koping yang efektif.";
-                recommendations = `
-                    <div class="bg-green-50 p-4 rounded-lg mb-4">
-                        <h4 class="font-semibold text-green-700 mb-2">Pertahankan Kebiasaan Baik Anda</h4>
-                        <ul class="text-green-600 space-y-1 text-sm">
-                            <li>• Terus pertahankan keseimbangan antara akademik dan kehidupan pribadi</li>
-                            <li>• Tetap terapkan manajemen waktu yang efektif</li>
-                            <li>• Jaga komunikasi dengan dosen dan teman sekelas</li>
-                        </ul>
-                    </div>
-                `;
-            } else if (finalScore > 20 && finalScore <= 40) {
-                category = 2;
-                categoryName = "Rendah";
-                categoryDescription = "Tingkat burnout Anda rendah";
-                interpretation = "Anda mengalami beberapa tanda burnout namun masih dalam tingkat yang dapat dikelola dengan baik.";
-                recommendations = `
-                    <div class="bg-blue-50 p-4 rounded-lg mb-4">
-                        <h4 class="font-semibold text-blue-700 mb-2">Tetap Waspada dan Proaktif</h4>
-                        <ul class="text-blue-600 space-y-1 text-sm">
-                            <li>• Perhatikan tanda-tanda stres dan atasi segera</li>
-                            <li>• Pastikan Anda memiliki waktu untuk relaksasi dan hobi</li>
-                            <li>• Jangan ragu mencari dukungan sosial ketika diperlukan</li>
-                        </ul>
-                    </div>
-                `;
-            } else if (finalScore > 40 && finalScore <= 60) {
-                category = 3;
-                categoryName = "Sedang";
-                categoryDescription = "Tingkat burnout Anda sedang";
-                interpretation = "Anda menunjukkan tanda-tanda burnout yang signifikan dan mungkin memerlukan intervensi untuk mencegah memburuknya kondisi.";
-                recommendations = `
-                    <div class="bg-yellow-50 p-4 rounded-lg mb-4">
-                        <h4 class="font-semibold text-yellow-700 mb-2">Perlu Tindakan Preventif</h4>
-                        <ul class="text-yellow-600 space-y-1 text-sm">
-                            <li>• Evaluasi beban akademik dan pertimbangkan penyesuaian</li>
-                            <li>• Tingkatkan waktu untuk aktivitas yang menyenangkan</li>
-                            <li>• Pertimbangkan untuk berkonsultasi dengan konselor kampus</li>
-                            <li>• Praktikkan teknik relaksasi secara teratur</li>
-                        </ul>
-                    </div>
-                `;
-            } else if (finalScore > 60 && finalScore <= 80) {
-                category = 4;
-                categoryName = "Tinggi";
-                categoryDescription = "Tingkat burnout Anda tinggi";
-                interpretation = "Anda mengalami tingkat burnout yang tinggi yang dapat mempengaruhi performa akademik dan kesejahteraan Anda secara signifikan.";
-                recommendations = `
-                    <div class="bg-orange-50 p-4 rounded-lg mb-4">
-                        <h4 class="font-semibold text-orange-700 mb-2">Perlu Intervensi Segera</h4>
-                        <ul class="text-orange-600 space-y-1 text-sm">
-                            <li>• Segera cari bantuan dari konselor atau profesional kesehatan mental</li>
-                            <li>• Diskusikan dengan dosen tentang kemungkinan penyesuaian akademik</li>
-                            <li>• Prioritaskan istirahat dan pemulihan</li>
-                            <li>• Kurangi beban akademik jika memungkinkan</li>
-                        </ul>
-                    </div>
-                `;
-            } else {
-                category = 5;
-                categoryName = "Sangat Tinggi";
-                categoryDescription = "Tingkat burnout Anda sangat tinggi";
-                interpretation = "Anda mengalami tingkat burnout yang sangat tinggi yang memerlukan perhatian dan intervensi segera.";
-                recommendations = `
-                    <div class="bg-red-50 p-4 rounded-lg mb-4">
-                        <h4 class="font-semibold text-red-700 mb-2">Perlu Bantuan Profesional Segera</h4>
-                        <ul class="text-red-600 space-y-1 text-sm">
-                            <li>• Segera hubungi layanan konseling kampus atau profesional kesehatan mental</li>
-                            <li>• Pertimbangkan cuti akademik sementara untuk pemulihan</li>
-                            <li>• Diskusikan situasi Anda dengan keluarga dan dosen wali</li>
-                            <li>• Fokus pada pemulihan kesehatan mental sebagai prioritas utama</li>
-                        </ul>
-                    </div>
-                `;
-            }
-            
-            // Tampilkan hasil
-            document.getElementById('final-score').textContent = finalScore.toFixed(1);
-            document.getElementById('obtained-score').textContent = totalScore;
-            document.getElementById('score-category').textContent = categoryName;
-            document.getElementById('category-name').textContent = categoryName;
-            document.getElementById('category-description').textContent = categoryDescription;
-            
-            // Tampilkan interpretasi
-            document.getElementById('interpretation-section').innerHTML = `
-                <h3 class="text-xl font-semibold text-gray-800 mb-4">Interpretasi Hasil</h3>
-                <div class="bg-gray-50 rounded-xl p-6">
-                    <p class="text-gray-700 leading-relaxed">${interpretation}</p>
-                </div>
-            `;
-            
-            // Tampilkan rekomendasi
-            document.getElementById('recommendations').innerHTML = recommendations;
-            
-            // Animasikan progress bar
-            setTimeout(() => {
-                document.getElementById('score-progress-bar').style.width = `${finalScore}%`;
-            }, 300);
-            
-            // Simpan hasil ke localStorage
-            saveResultsToStorage(totalScore, finalScore, category, categoryName);
-        }
+            // Updated scoring logic for BurnCheck using RAW 1–6 scale
 
-        // Fungsi untuk menyimpan hasil ke localStorage
-        function saveResultsToStorage(totalScore, finalScore, category, categoryName) {
-            try {
-                const results = {
-                    totalScore,
-                    finalScore,
-                    category,
-                    categoryName,
-                    timestamp: new Date().toISOString()
-                };
-                localStorage.setItem('burncheck_results', JSON.stringify(results));
-            } catch (e) {
-                console.error('Error saving results to localStorage:', e);
-            }
-        }
+function calculateAndDisplayResults() {
+    // Hitung skor total (raw)
+    let totalScore = 0;
+    Object.values(answers).forEach(score => {
+        totalScore += score;
+    });
 
-        // Fungsi untuk toggle accordion
-        function toggleAccordion(header) {
-            const accordion = header.parentElement;
-            const content = accordion.querySelector('.accordion-content');
-            const icon = header.querySelector('svg');
-            if (accordion.classList.contains('active')) {
-                accordion.classList.remove('active');
-                icon.style.transform = 'rotate(0deg)';
-            } else {
-                accordion.classList.add('active');
-                icon.style.transform = 'rotate(180deg)';
-            }
-        }
+    // RAW mean score (1–6)
+    const finalScore = totalScore / questions.length;
 
-        // Fungsi untuk memuat data admin
-        function loadAdminData() {
-            // Ambil data dari localStorage
-            const allResponses = JSON.parse(localStorage.getItem('burncheck_all_responses') || '[]');
-            // Update statistik
-            document.getElementById('total-respondents').textContent = allResponses.length;
-            // Hitung rata-rata skor
-            let totalScore = 0;
-            let totalCompletionTime = 0;
-            let completedCount = 0;
-            allResponses.forEach(response => {
-                const scores = Object.values(response.answers);
-                const sum = scores.reduce((a, b) => a + b, 0);
-                totalScore += (sum / (scores.length * 6)) * 100;
-                // Hitung waktu selesai jika ada
-                if (response.completionTime && !isNaN(Number(response.completionTime))) {
-                    totalCompletionTime += Number(response.completionTime);
-                    completedCount++;
-                }
-            });
-            const avgScore = allResponses.length > 0 ? (totalScore / allResponses.length).toFixed(1) : 0;
-            document.getElementById('average-score').textContent = avgScore;
-            // Hitung rata-rata waktu
-            const avgTime = completedCount > 0 ? (totalCompletionTime / completedCount).toFixed(1) : 0;
-            document.getElementById('avg-completion-time').textContent = avgTime + 'm';
-            // Hitung tingkat penyelesaian (asumsi: semua yang ada di allResponses sudah selesai, jadi 100%)
-            // Jika ingin membedakan, tambahkan logika status selesai
-            const completionRate = allResponses.length > 0 ? 100 : 0;
-            document.getElementById('completion-rate').textContent = completionRate + '%';
-            
-            // Hitung distribusi kategori
-            const categoryCounts = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
-            
-            allResponses.forEach(response => {
-                const scores = Object.values(response.answers);
-                const sum = scores.reduce((a, b) => a + b, 0);
-                const finalScore = (sum / (scores.length * 6)) * 100;
-                
-                let category;
-                if (finalScore <= 20) category = 1;
-                else if (finalScore <= 40) category = 2;
-                else if (finalScore <= 60) category = 3;
-                else if (finalScore <= 80) category = 4;
-                else category = 5;
-                
-                categoryCounts[category]++;
-            });
+    // Tentukan kategori berdasarkan cutoff RAW (TOTAL CBIS)
+    let categoryName = "";
+    let categoryDescription = "";
+    let interpretation = "";
+    let recommendations = "";
+
+    if (finalScore < 2.551) {
+        categoryName = "Sangat Rendah";
+        categoryDescription = "Tingkat burnout Anda sangat rendah";
+        interpretation = "Anda menunjukkan ketahanan yang baik terhadap stres akademik dan memiliki strategi koping yang efektif.";
+        recommendations = `
+            <div class="bg-green-50 p-4 rounded-lg mb-4">
+                <h4 class="font-semibold text-green-700 mb-2">Pertahankan Kebiasaan Baik Anda</h4>
+                <ul class="text-green-600 space-y-1 text-sm">
+                    <li>• Pertahankan keseimbangan antara kegiatan akademik dan istirahat</li>
+                    <li>• Lanjutkan pola manajemen waktu yang sehat</li>
+                    <li>• Jaga jaringan sosial dan komunikasi dengan dosen/teman</li>
+                </ul>
+            </div>`;
+    }
+    else if (finalScore < 3.112) {
+        categoryName = "Rendah";
+        categoryDescription = "Tingkat burnout Anda rendah";
+        interpretation = "Beberapa tanda burnout muncul, tetapi masih dalam batas yang dapat dikelola.";
+        recommendations = `
+            <div class="bg-blue-50 p-4 rounded-lg mb-4">
+                <h4 class="font-semibold text-blue-700 mb-2">Tetap Waspada dan Proaktif</h4>
+                <ul class="text-blue-600 space-y-1 text-sm">
+                    <li>• Kenali tanda stres sejak dini</li>
+                    <li>• Luangkan waktu untuk aktivitas menyenangkan</li>
+                    <li>• Jaga rutinitas relaksasi</li>
+                </ul>
+            </div>`;
+    }
+    else if (finalScore < 4.232) {
+        categoryName = "Cukup";
+        categoryDescription = "Tingkat burnout Anda cukup";
+        interpretation = "Anda menunjukkan tanda burnout yang signifikan dan membutuhkan strategi pemulihan tambahan.";
+        recommendations = `
+            <div class="bg-yellow-50 p-4 rounded-lg mb-4">
+                <h4 class="font-semibold text-yellow-700 mb-2">Perkuat Strategi Pengelolaan Stres</h4>
+                <ul class="text-yellow-600 space-y-1 text-sm">
+                    <li>• Evaluasi beban akademik Anda</li>
+                    <li>• Tingkatkan waktu istirahat dan tidur</li>
+                    <li>• Pertimbangkan untuk berkonsultasi dengan layanan kampus</li>
+                </ul>
+            </div>`;
+    }
+    else if (finalScore < 4.793) {
+        categoryName = "Tinggi";
+        categoryDescription = "Tingkat burnout Anda tinggi";
+        interpretation = "Burnout mempengaruhi fungsi akademik dan emosional Anda secara signifikan.";
+        recommendations = `
+            <div class="bg-orange-50 p-4 rounded-lg mb-4">
+                <h4 class="font-semibold text-orange-700 mb-2">Perlu Intervensi Segera</h4>
+                <ul class="text-orange-600 space-y-1 text-sm">
+                    <li>• Kurangi beban kegiatan bila memungkinkan</li>
+                    <li>• Jadwalkan sesi konseling profesional</li>
+                    <li>• Lakukan teknik grounding/relaksasi harian</li>
+                </ul>
+            </div>`;
+    }
+    else {
+        categoryName = "Sangat Tinggi";
+        categoryDescription = "Tingkat burnout Anda sangat tinggi";
+        interpretation = "Kondisi ini membutuhkan perhatian profesional secepatnya untuk mencegah dampak lebih jauh.";
+        recommendations = `
+            <div class="bg-red-50 p-4 rounded-lg mb-4">
+                <h4 class="font-semibold text-red-700 mb-2">Butuh Bantuan Profesional Segera</h4>
+                <ul class="text-red-600 space-y-1 text-sm">
+                    <li>• Hubungi layanan konseling kampus atau psikolog</li>
+                    <li>• Pertimbangkan pengurangan beban akademik</li>
+                    <li>• Fokus pada pemulihan kesehatan mental</li>
+                </ul>
+            </div>`;
+    }
+
+    // Tampilkan hasil
+    document.getElementById('final-score').textContent = finalScore.toFixed(2);
+    document.getElementById('obtained-score').textContent = finalScore.toFixed(2);
+    document.getElementById('score-category').textContent = categoryName;
+    document.getElementById('category-name').textContent = categoryName;
+    document.getElementById('category-description').textContent = categoryDescription;
+
+    document.getElementById('interpretation-section').innerHTML = `
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">Interpretasi Hasil</h3>
+        <div class="bg-gray-50 rounded-xl p-6">
+            <p class="text-gray-700 leading-relaxed">${interpretation}</p>
+        </div>`;
+
+    document.getElementById('recommendations').innerHTML = recommendations;
+
+    // Update progress bar (raw 1–6 → 0–100%)
+    const progressPercent = ((finalScore - 1) / 5) * 100;
+    document.getElementById('score-progress-bar').style.width = `${progressPercent}%`;
+
+    // Simpan hasil untuk admin
+    saveResultsToStorage(totalScore, finalScore, categoryName, categoryDescription);
+}
             
             // Update tabel data
             const tableBody = document.getElementById('respondent-data');
@@ -2180,7 +2096,7 @@
                 'IPK',
                 'Status Tempat Tinggal'
             ];
-            for (let i = 1; i <= 25; i++) headers.push(`Item ${i}`);
+            for (let i = 1; i <= 24; i++) headers.push(`Item ${i}`);
             headers.forEach(h => { tableHTML += `<th>${h}</th>`; });
             tableHTML += '</tr></thead><tbody>';
             // Isi data
@@ -2203,7 +2119,7 @@
                 tableHTML += `<td>${response.demografi.semester || ''}</td>`;
                 tableHTML += `<td>${response.demografi.ipk || ''}</td>`;
                 tableHTML += `<td>${response.demografi['tempat-tinggal'] || ''}</td>`;
-                for (let i = 0; i < 25; i++) {
+                for (let i = 0; i < 24; i++) {
                     tableHTML += `<td>${response.answers[i] || ''}</td>`;
                 }
                 tableHTML += `</tr>`;
@@ -2345,7 +2261,7 @@
                     'IPK',
                     'Status Tempat Tinggal'
                 ];
-                for (let i = 1; i <= 25; i++) {
+                for (let i = 1; i <= 24; i++) {
                     headers.push(`Item ${i}`);
                 }
                 excelData.push(headers);
@@ -2370,7 +2286,7 @@
                         response.demografi.ipk || '',
                         response.demografi['tempat-tinggal'] || ''
                     ];
-                    for (let i = 0; i < 25; i++) {
+                    for (let i = 0; i < 24; i++) {
                         row.push(response.answers[i] || '');
                     }
                     excelData.push(row);
@@ -2390,7 +2306,7 @@
                     {wch: 8},  // IPK
                     {wch: 18}  // Status Tempat Tinggal
                 ];
-                for (let i = 0; i < 25; i++) {
+                for (let i = 0; i < 24; i++) {
                     colWidths.push({wch: 8});
                 }
                 ws['!cols'] = colWidths;
@@ -2511,88 +2427,6 @@
                 }
             });
         });
-        // ===== SheetDB integration (FINAL) =====
-
-// your real SheetDB endpoint
-const SHEETDB_URL = "https://sheetdb.io/api/v1/nfhimmgny5k4q";
-
-// ---- Send data to SheetDB ----
-async function sendToSheet(payload) {
-    try {
-        // SheetDB requires { data: {...} }
-        const body = { data: payload.data };
-
-        const res = await fetch(SHEETDB_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body)
-        });
-
-        const json = await res.json();
-        console.log("SheetDB POST response:", json);
-        return json;
-
-    } catch (err) {
-        console.error("sendToSheet error:", err);
-        return null;
-    }
-}
-
-// ---- Fetch all rows for Admin Dashboard ----
-async function fetchFromSheet() {
-    try {
-        const res = await fetch(SHEETDB_URL);
-        const json = await res.json();
-
-        console.log("SheetDB GET response:", json);
-
-        // SheetDB returns rows as an array of objects
-        return json;
-
-    } catch (err) {
-        console.warn("fetchFromSheet failed:", err);
-        return [];
-    }
-}
-
-// ---- Sync responses into local cache on load ----
-fetchFromSheet().then(rows => {
-    if (Array.isArray(rows) && rows.length) {
-        localStorage.setItem("burncheck_all_responses", JSON.stringify(rows));
-
-        const adminPage = document.getElementById("admin-dashboard-page");
-        if (adminPage && adminPage.classList.contains("active")) {
-            if (typeof loadAdminData === "function") loadAdminData();
-            if (typeof showDataPreview === "function") showDataPreview();
-        }
-    }
-});
-
-// ---- Final Submit Button: save to SheetDB ----
-document.addEventListener("click", function(e) {
-    if (e.target && e.target.id === "submit-final-button") {
-
-       const payload = {
-    data: {
-        respondentId: localStorage.getItem("burncheck_respondent_id") || "",
-        demografi: JSON.stringify(JSON.parse(localStorage.getItem("burncheck_demografi") || "{}")),
-        answers: JSON.stringify(JSON.parse(localStorage.getItem("burncheck_answers") || "{}")),
-        completionTime: localStorage.getItem("burncheck_completion_time") || "",
-        submitTime: new Date().toISOString()
-    }
-};
-
-
-        sendToSheet(payload).then(r => {
-            // SheetDB returns {created: 1} on success
-            if (r && (r.created === 1 || r[0])) {
-                console.log("SheetDB: Response saved!");
-            } else {
-                console.log("SheetDB: Did NOT confirm save.");
-            }
-        });
-    }
-});
     </script>
 </body>
 </html>
