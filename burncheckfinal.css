@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Burncheck – Academic Burnout</title>
+  <link rel="stylesheet" href="burncheck final.css" />
+  <script>
+  const API_URL = "https://script.google.com/macros/s/AKfycbykwLvgyM0Vsu-c6aqa6LuMpkFGCr-TkleJKultC1mn-ZtYI2K0rgSpA_viYH-B0xAi/exec";
+
+  /* ===== NORMA TABLE ===== */
+  const NORMA = {
+    PB: [
+      { max: 2.775, label: "Sangat Rendah" },
+      { max: 3.425, label: "Rendah" },
+      { max: 4.729, label: "Cukup" },
+      { max: 5.380, label: "Tinggi" },
+      { max: Infinity, label: "Sangat Tinggi" }
+    ],
+    SRB: [
+      { max: 2.569, label: "Sangat Rendah" },
+      { max: 3.229, label: "Rendah" },
+      { max: 4.551, label: "Cukup" },
+      { max: 5.212, label: "Tinggi" },
+      { max: Infinity, label: "Sangat Tinggi" }
+    ],
+    CRB: [
+      { max: 1.880, label: "Sangat Rendah" },
+      { max: 2.623, label: "Rendah" },
+      { max: 4.109, label: "Cukup" },
+      { max: 4.853, label: "Tinggi" },
+      { max: Infinity, label: "Sangat Tinggi" }
+    ],
+    TRB: [
+      { max: 2.058, label: "Sangat Rendah" },
+      { max: 2.702, label: "Rendah" },
+      { max: 3.992, label: "Cukup" },
+      { max: 4.637, label: "Tinggi" },
+      { max: Infinity, label: "Sangat Tinggi" }
+    ],
+    TOTAL: [
+      { max: 2.551, label: "Sangat Rendah" },
+      { max: 3.111, label: "Rendah" },
+      { max: 4.231, label: "Cukup" },
+      { max: 4.792, label: "Tinggi" },
+      { max: Infinity, label: "Sangat Tinggi" }
+    ]
+  };
+
+  function mean(arr) {
+    return arr.reduce((a,b)=>a+b,0) / arr.length;
+  }
+
+  function kategori(score, table) {
+    return table.find(r => score <= r.max).label;
+  }
+
+  async function submitKuesioner() {
+    /* Ambil skor per dimensi (ID item TIDAK DIUBAH) */
+    const PB = mean([...document.querySelectorAll('input[name^="pb"]:checked')].map(i=>+i.value));
+    const SRB = mean([...document.querySelectorAll('input[name^="srb"]:checked')].map(i=>+i.value));
+    const CRB = mean([...document.querySelectorAll('input[name^="crb"]:checked')].map(i=>+i.value));
+    const TRB = mean([...document.querySelectorAll('input[name^="trb"]:checked')].map(i=>+i.value));
+
+    const TOTAL = mean([PB, SRB, CRB, TRB]);
+
+    const payload = {
+      id: document.getElementById('id').value,
+      usia: document.getElementById('usia').value,
+      programStudi: document.getElementById('program-studi').value,
+      semester: document.getElementById('semester').value,
+      pb: PB.toFixed(3),
+      srb: SRB.toFixed(3),
+      crb: CRB.toFixed(3),
+      trb: TRB.toFixed(3),
+      skor: TOTAL.toFixed(3),
+      kategori: kategori(TOTAL, NORMA.TOTAL)
+    };
+
+    await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    document.getElementById('hasil').innerHTML = `
+      <h3>Hasil Anda</h3>
+      <p><b>Academic Burnout:</b> ${payload.skor}</p>
+      <p><b>Kategori:</b> ${payload.kategori}</p>
+    `;
+  }
+
+  async function loadAdmin() {
+    const res = await fetch(API_URL);
+    const data = await res.json();
+    const tbody = document.getElementById('admin-body');
+    tbody.innerHTML = '';
+    data.forEach(d => {
+      tbody.innerHTML += `<tr>
+        <td>${d.ID}</td><td>${d.Usia}</td><td>${d['Program Studi']}</td><td>${d.Semester}</td>
+        <td>${d.Skor}</td><td>${d.Kategori}</td><td>${new Date(d.Waktu).toLocaleString()}</td>
+      </tr>`;
+    });
+  }
+  </script>
+</head>
+<body>
+
+<!-- ==== FORM ASLI (TIDAK DIUBAH) ==== -->
+<!-- PERTANYAAN & INPUT KAMU TETAP DI SINI -->
+
+<div class="text-center">
+  <button type="button" onclick="submitKuesioner()">Kirim Jawaban</button>
+</div>
+
+<div id="hasil"></div>
+
+<hr />
+<h2>Admin Page</h2>
+<button onclick="loadAdmin()">Load Data</button>
+<table border="1">
+  <thead>
+    <tr>
+      <th>ID</th><th>Usia</th><th>Program Studi</th><th>Semester</th>
+      <th>Skor</th><th>Kategori</th><th>Waktu</th>
+    </tr>
+  </thead>
+  <tbody id="admin-body"></tbody>
+</table>
+
+</body>
+</html>
