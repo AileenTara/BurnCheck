@@ -1231,17 +1231,21 @@
                     </div>
                 </div>
 
-                <div class="text-center">
-                    <button id="submit-final-button" class="btn-primary text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition-all duration-300 mb-4">
-                        Kirim Jawaban
-                    </button>
-                    <p class="text-gray-500 text-sm">
-                        Dengan menekan tombol di atas, Anda menyetujui bahwa data Anda akan digunakan untuk keperluan penelitian.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
+               <div class="text-center">
+  <button
+    id="button"
+    type="button"
+    onclick="kirimKeDatabase()"
+    class="btn-primary text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition-all duration-300"
+  >
+    Kirim Jawaban
+  </button>
+
+  <p class="text-gray-500 text-sm mt-2">
+    Dengan menekan tombol di atas, Anda menyetujui bahwa data Anda akan digunakan untuk keperluan penelitian.
+  </p>
+</div>
+
 
     <!-- Results Page -->
     <div id="results-page" class="page">
@@ -2430,3 +2434,29 @@ function calculateAndDisplayResults() {
     </script>
 </body>
 </html>
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbykwLvgyM0Vsu-c6aqa6LuMpkFGCr-TkleJKultC1mn-ZtYI2K0rgSpA_viYH-B0xAi/exec";
+
+function kirimKeDatabase() {
+  const data = {
+    id: document.getElementById("id").value,
+    usia: document.getElementById("usia").value,
+    programStudi: document.getElementById("program-studi").value,
+    semester: document.getElementById("semester").value,
+    skor: window.totalSkor,
+    kategori: window.kategoriBurnout
+  };
+
+  fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  })
+  .then(() => {
+    alert("Data berhasil disimpan 😊");
+  })
+  .catch(() => {
+    alert("Data belum tersimpan");
+  });
+}
+</script>
