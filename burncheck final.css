@@ -76,7 +76,7 @@
       kategori: kategori(TOTAL, NORMA.TOTAL)
     };
 
-    await fetch(API_URL, {
+    await fetch(https://script.google.com/macros/s/AKfycbwqBYdVkWrCrqf5rXAkHRxDxKSRVJReW7eKoEOX_pKeYioIerY-GJJc8SqV6WDQMF4F/exec, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
